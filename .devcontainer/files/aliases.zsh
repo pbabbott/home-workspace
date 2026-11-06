@@ -5,6 +5,7 @@ alias template="ssh firebolt@192.168.6.91"
 alias tfhaproxy="ssh root@192.168.6.28"
 alias bpi="ssh pi@192.168.4.144"
 alias ror="ssh pabbott@192.168.4.124"
+alias mmap="ssh firebolt@192.168.5.91"
 
 # Prod gen 2
 alias tfpc1="ssh firebolt@192.168.6.24"
