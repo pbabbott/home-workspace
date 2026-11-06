@@ -11,11 +11,6 @@ Workspace for my home projects.
 **Setup:**
 
 1. `cp .devcontainer/devcontainer.env .devcontainer/.env` and fill in the secrets (`.env` is gitignored).
-2. Make sure `~/media` exists on the host (it is bind-mounted).
-3. Reopen the folder in the container.
+2. Reopen the folder in the container.
 
 **Repos:** run `scripts/repos.sh` to clone `home-web-apps`, `home-playbooks` and `home-kubernetes` into this directory (gitignored; each keeps its own git history). `--pull` fast-forwards them, `--status` summarizes them. Then run `scripts/setup-web-apps.sh` (`pnpm install` + Playwright; also runs on container create if `home-web-apps` is already cloned). Turbo remote-cache auth is set up on every start when `home-web-apps` is present and 1Password (`op`) is signed in.
-
-**Not done yet:**
-
-- The `~/.ssh` bind mount (omitted on purpose, see the comment in `devcontainer.json`).

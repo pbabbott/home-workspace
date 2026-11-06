@@ -48,8 +48,9 @@
     // Requires ~/media to exist on the host, otherwise the container will fail to start.
     // "type=bind,source=/home/${localEnv:USER}/media,target=/home/vscode/media"
   ],
-  // DISABLED (see TOGGLES.md). Requires .devcontainer/.env to exist (gitignored): cp .devcontainer/devcontainer.env .devcontainer/.env
-  // "runArgs": ["--env-file", ".devcontainer/.env"],
+  // Requires .devcontainer/.env to exist (gitignored): cp .devcontainer/devcontainer.env .devcontainer/.env
+  // Container fails to start if the file is missing (see TOGGLES.md).
+  "runArgs": ["--env-file", ".devcontainer/.env"],
   "customizations": {
     "vscode": {
       "settings": {
