@@ -14,5 +14,16 @@ Node 22 + pnpm 10.15.0, Docker-in-Docker (buildx), kubectl, helm, minikube, kube
 
 ## Lifecycle
 
-- **Create:** runs `scripts/setup-web-apps.sh` (`pnpm install` + Playwright) if `home-web-apps` is already cloned.
-- **Every start:** sets up Turbo remote-cache auth when `home-web-apps` is present and 1Password (`op`) is signed in.
+**On create** (`init-postcreate.sh`, once):
+
+- Clones oh-my-zsh plugins (autosuggestions, you-should-use, kubectl-prompt).
+- Sets up the docker buildx builder and installs binfmt for cross-platform builds.
+- Installs `flux-operator` and `flux-operator-mcp` (default v0.45.1, override with `FLUX_OPERATOR_TOOLS_VERSION`).
+- Runs `scripts/setup-web-apps.sh` (`pnpm install` + Playwright) if `home-web-apps` is already cloned; otherwise skips it, so run it manually after `scripts/repos.sh`.
+
+**On every start** (`init-poststart.sh`):
+
+- Adds `safe.directory` entries (workspace and nested repos) and a few global git settings, unless `~/.gitconfig` is a read-only bind mount.
+- Copies the aliases, starship config and `.zshrc` from `files/` (this overwrites `~/.zshrc`).
+- Writes Turbo remote-cache vars to `~/.turbo-env` when `home-web-apps` is cloned and `op` is signed in; skips otherwise.
+- Marks Claude Code onboarding as completed in `~/.claude.json`.
