@@ -4,3 +4,8 @@ node_modules/
 .DS_Store
 *.log
 .devcontainer/.env
+
+# Nested working clones (managed by scripts/repos.sh)
+/home-web-apps/
+/home-playbooks/
+/home-kubernetes/

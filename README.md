@@ -14,8 +14,9 @@ Workspace for my home projects.
 2. Make sure `~/media` exists on the host (it is bind-mounted).
 3. Reopen the folder in the container.
 
+**Repos:** run `scripts/repos.sh` to clone `home-web-apps`, `home-playbooks` and `home-kubernetes` into this directory (gitignored; each keeps its own git history). `--pull` fast-forwards them, `--status` summarizes them.
+
 **Not done yet:**
 
 - The `~/.ssh` bind mount (omitted on purpose, see the comment in `devcontainer.json`).
-- Getting the three repos into the workspace.
 - `pnpm install` / Playwright setup and Turbo remote-cache auth (need `home-web-apps` present; see TODOs in the init scripts).

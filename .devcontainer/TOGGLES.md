@@ -36,3 +36,4 @@ Update this file whenever something is toggled on or off.
 - 2026-11-05: Disabled `--env-file` runArg (startup failed: `.devcontainer/.env` missing).
 - 2026-11-05: Re-enabled the `.claude` mount.
 - 2026-11-05: Commented out `.gitconfig`, `.claude`, and `media` mounts for easier startup.
+- 2026-11-06: Repos are cloned manually via `scripts/repos.sh` (not on container create); added nested `safe.directory`.

@@ -14,6 +14,7 @@ _gitconfig_global_ok() {
 }
 if _gitconfig_global_ok; then
   git config --global --add safe.directory /workspaces/home-workspace
+  git config --global --add safe.directory "/workspaces/home-workspace/*"
   git config --global push.autoSetupRemote true
   git config --global credential.helper store
 else
