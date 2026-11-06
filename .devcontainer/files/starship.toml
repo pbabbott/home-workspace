@@ -1,0 +1,3 @@
+[kubernetes]
+disabled = false
+format = '[\[󱃾 $context:$namespace\]](blue) '

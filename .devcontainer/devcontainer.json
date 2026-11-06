@@ -1,0 +1,84 @@
+{
+  "name": "Home Workspace",
+  "waitFor": "none",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/node:1.7.1": {
+      "version": "22",
+      "pnpmVersion": "10.15.0"
+    },
+    "ghcr.io/devcontainers/features/common-utils:2.5.7": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true,
+      "upgradePackages": true
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2.16.1": {},
+    // helm and minikube are installed (home-kubernetes enables them; the other two disable them)
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1.3.1": {},
+    "ghcr.io/devcontainers/features/terraform:1": {
+      "tflint": "none",
+      "terragrunt": "none"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/flexwie/devcontainer-features/op:1": {},
+    "ghcr.io/rio/features/skaffold:2.0.0": {},
+    "ghcr.io/devcontainers-extra/features/kubectx-kubens:1.0.6": {},
+    "ghcr.io/devcontainers-extra/features/starship:1": {},
+    "ghcr.io/goldsam/dev-container-features/flux2:1": {},
+    "ghcr.io/gickis/devcontainer-features/kubeseal:1": {},
+    "ghcr.io/dhoeric/features/k9s:1": {},
+    "ghcr.io/devcontainers-extra/features/asdf-package:1": {
+      "plugin": "istioctl",
+      "version": "1.25.2",
+      "pluginRepo": "https://github.com/virtualstaticvoid/asdf-istioctl.git"
+    },
+    "ghcr.io/jsburckhardt/devcontainer-features/uv:1": {},
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
+  },
+  "mounts": [
+    // NOTE: the ~/.ssh bind mount is intentionally omitted for now. The source repos mounted it at
+    // /home/vscode/.ssh (home-playbooks read-write; home-web-apps and home-kubernetes read-only).
+    // To be added in a later session.
+    "type=bind,source=/home/${localEnv:USER}/.gitconfig,target=/home/vscode/.gitconfig,readonly",
+    "type=bind,source=/home/${localEnv:USER}/.claude,target=/home/vscode/.claude",
+    // Requires ~/media to exist on the host, otherwise the container will fail to start.
+    "type=bind,source=/home/${localEnv:USER}/media,target=/home/vscode/media"
+  ],
+  // Requires .devcontainer/.env to exist (gitignored): cp .devcontainer/devcontainer.env .devcontainer/.env
+  "runArgs": ["--env-file", ".devcontainer/.env"],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "dev.containers.copyGitConfig": false,
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "debug.javascript.autoAttachFilter": "disabled"
+      },
+      "extensions": [
+        "aaron-bond.better-comments",
+        "anthropic.claude-code",
+        "bierner.markdown-mermaid",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "github.copilot",
+        "github.vscode-github-actions",
+        "Gruntfuggly.todo-tree",
+        "HashiCorp.terraform",
+        "mikestead.dotenv",
+        "oderwat.indent-rainbow",
+        "redhat.ansible",
+        "redhat.vscode-yaml",
+        "streetsidesoftware.code-spell-checker",
+        "tamasfe.even-better-toml",
+        "unifiedjs.vscode-mdx",
+        "vscode-icons-team.vscode-icons",
+        "yzhang.markdown-all-in-one"
+      ]
+    }
+  },
+  "containerUser": "vscode",
+  "postCreateCommand": "bash .devcontainer/init-postcreate.sh",
+  "postStartCommand": "bash .devcontainer/init-poststart.sh"
+}
