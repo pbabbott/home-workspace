@@ -42,13 +42,14 @@
     // NOTE: the ~/.ssh bind mount is intentionally omitted for now. The source repos mounted it at
     // /home/vscode/.ssh (home-playbooks read-write; home-web-apps and home-kubernetes read-only).
     // To be added in a later session.
-    "type=bind,source=/home/${localEnv:USER}/.gitconfig,target=/home/vscode/.gitconfig,readonly",
-    "type=bind,source=/home/${localEnv:USER}/.claude,target=/home/vscode/.claude",
+    // Host mounts are commented out to make startup easier (see TOGGLES.md). Re-enable as needed.
+    // "type=bind,source=/home/${localEnv:USER}/.gitconfig,target=/home/vscode/.gitconfig,readonly",
+    "type=bind,source=/home/${localEnv:USER}/.claude,target=/home/vscode/.claude"
     // Requires ~/media to exist on the host, otherwise the container will fail to start.
-    "type=bind,source=/home/${localEnv:USER}/media,target=/home/vscode/media"
+    // "type=bind,source=/home/${localEnv:USER}/media,target=/home/vscode/media"
   ],
-  // Requires .devcontainer/.env to exist (gitignored): cp .devcontainer/devcontainer.env .devcontainer/.env
-  "runArgs": ["--env-file", ".devcontainer/.env"],
+  // DISABLED (see TOGGLES.md). Requires .devcontainer/.env to exist (gitignored): cp .devcontainer/devcontainer.env .devcontainer/.env
+  // "runArgs": ["--env-file", ".devcontainer/.env"],
   "customizations": {
     "vscode": {
       "settings": {
