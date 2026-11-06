@@ -32,8 +32,22 @@ cp .devcontainer/files/starship.toml /home/vscode/.config/starship.toml
 echo "Overwriting .zshrc file"
 cp .devcontainer/files/.zshrc /home/vscode/.zshrc
 
-# TODO (later session, once home-web-apps is in the workspace): set up Turbo remote cache auth
-# by sourcing home-web-apps' scripts/turbo-auth.sh and writing ~/.turbo-env (see that repo's init-poststart.sh).
+echo "Setting up Turbo remote cache auth"
+if [ -f "$REPO_ROOT/home-web-apps/scripts/turbo-auth.sh" ]; then
+  (
+    cd "$REPO_ROOT/home-web-apps"
+    . scripts/turbo-auth.sh 2>/dev/null || true
+    if [ -n "${TURBO_TOKEN:-}" ]; then
+      printf 'export TURBO_TOKEN="%s"\nexport TURBO_API="%s"\nexport TURBO_TEAM="%s"\n' \
+        "$TURBO_TOKEN" "$TURBO_API" "$TURBO_TEAM" > /home/vscode/.turbo-env
+      echo "Turbo auth configured"
+    else
+      echo "Turbo auth skipped (op unavailable or not signed in)"
+    fi
+  )
+else
+  echo "Turbo auth skipped (home-web-apps not cloned)"
+fi
 
 echo "Configuring Claude"
 CLAUDE_JSON="$HOME/.claude.json"

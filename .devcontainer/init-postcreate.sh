@@ -56,6 +56,10 @@ if [ -n "$FO_ARCH" ]; then
   fi
 fi
 
-# TODO (later session, once home-web-apps is in the workspace):
-#   pnpm install
-#   pnpm --filter @abbottland/fui-components exec playwright install --with-deps chromium
+# home-web-apps deps. Repos are cloned manually (scripts/repos.sh), so skip if not present yet;
+# re-run `bash scripts/setup-web-apps.sh` after cloning.
+if [ -d "$REPO_ROOT/home-web-apps" ]; then
+  bash "$REPO_ROOT/scripts/setup-web-apps.sh" || echo "home-web-apps setup failed; re-run scripts/setup-web-apps.sh"
+else
+  echo "Skipping home-web-apps setup (not cloned; run scripts/repos.sh then scripts/setup-web-apps.sh)"
+fi

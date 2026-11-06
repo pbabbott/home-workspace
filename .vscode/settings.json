@@ -5,5 +5,14 @@
     "/workspaces/home-workspace/home-web-apps",
     "/workspaces/home-workspace/home-playbooks",
     "/workspaces/home-workspace/home-kubernetes"
-  ]
+  ],
+  // Keep huge generated dirs out of file watching and search.
+  "files.watcherExclude": {
+    "**/.pnpm-store/**": true,
+    "**/node_modules/**": true
+  },
+  "search.exclude": {
+    "**/.pnpm-store": true,
+    "**/node_modules": true
+  }
 }

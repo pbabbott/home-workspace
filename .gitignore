@@ -9,3 +9,6 @@ node_modules/
 /home-web-apps/
 /home-playbooks/
 /home-kubernetes/
+
+# pnpm fallback store (workspace is on a different filesystem than $HOME)
+.pnpm-store/
