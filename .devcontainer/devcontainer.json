@@ -39,9 +39,8 @@
     "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
   },
   "mounts": [
-    // NOTE: the ~/.ssh bind mount is intentionally omitted for now. The source repos mounted it at
-    // /home/vscode/.ssh (home-playbooks read-write; home-web-apps and home-kubernetes read-only).
-    // To be added in a later session.
+    // Requires ~/.ssh to exist on the host, otherwise the container will fail to start (see TOGGLES.md).
+    "type=bind,source=/home/${localEnv:USER}/.ssh,target=/home/vscode/.ssh",
     // Host mounts are commented out to make startup easier (see TOGGLES.md). Re-enable as needed.
     // "type=bind,source=/home/${localEnv:USER}/.gitconfig,target=/home/vscode/.gitconfig,readonly",
     "type=bind,source=/home/${localEnv:USER}/.claude,target=/home/vscode/.claude"

@@ -12,7 +12,7 @@ Update this file whenever something is toggled on or off.
 | `~/.gitconfig` → `/home/vscode/.gitconfig` (read-only) | OFF | `~/.gitconfig` must exist | `init-poststart.sh` falls back to writing a container-local global config |
 | `~/.claude` → `/home/vscode/.claude` | ON | `~/.claude` must exist | Claude Code auth/settings |
 | `~/media` → `/home/vscode/media` | OFF | `~/media` must exist | Container fails to start if missing |
-| `~/.ssh` → `/home/vscode/.ssh` | OFF (not yet added) | `~/.ssh` must exist | Source repos: home-playbooks mounted read-write; home-web-apps and home-kubernetes read-only |
+| `~/.ssh` → `/home/vscode/.ssh` | ON | `~/.ssh` must exist | Container fails to start if missing. Mounted read-write (needed for ansible `known_hosts`) |
 
 ## Host files / env
 
@@ -30,7 +30,6 @@ Update this file whenever something is toggled on or off.
 ## Pending / TODO
 
 - Turbo remote cache auth in `init-poststart.sh` (once home-web-apps is in the workspace).
-- `~/.ssh` bind mount: omitted on purpose, see the comment in `devcontainer.json`.
 
 ## Changelog
 
@@ -40,3 +39,4 @@ Update this file whenever something is toggled on or off.
 - 2026-11-05: Commented out `.gitconfig`, `.claude`, and `media` mounts for easier startup.
 - 2026-11-06: Repos are cloned manually via `scripts/repos.sh` (not on container create); added nested `safe.directory`.
 - 2026-11-06: Re-enabled the `--env-file` runArg (needed for 1Password Connect / Turbo auth).
+- 2026-11-06: Enabled the `~/.ssh` bind mount.
