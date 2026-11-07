@@ -12,3 +12,4 @@ node_modules/
 
 # pnpm fallback store (workspace is on a different filesystem than $HOME)
 .pnpm-store/
+.claude/settings.local.json
