@@ -27,3 +27,6 @@ Hosts, VMs and k8s nodes in the homelab are configured by Ansible in `home-playb
 
 Read these before answering ansible or host/VM questions, then the relevant playbook README.
 Also see `home-playbooks/CLAUDE.md` (e.g. vault flag `-e @./vault.yml`).
+
+## Cluster access
+`scripts/get-kubeconfig.sh [prod-gen2|prod-gen3]` merges controller kubeconfigs into `~/.kube/config` (context names = cluster labels). Add new clusters to the `CLUSTERS` array in that script.

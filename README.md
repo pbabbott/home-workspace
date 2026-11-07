@@ -14,3 +14,4 @@ Each is its own git repo, cloned (gitignored) into this directory.
 2. Reopen the folder in the container (see [.devcontainer/README.md](.devcontainer/README.md)).
 3. `scripts/repos.sh` to clone the three repos. `--pull` fast-forwards them, `--status` summarizes them.
 4. `scripts/setup-web-apps.sh` to run `pnpm install` + Playwright for `home-web-apps`.
+5. `scripts/get-kubeconfig.sh [cluster...]` to fetch kubeconfigs (prod-gen2, prod-gen3) from the controllers over SSH and merge them into `~/.kube/config` (`--list` shows clusters; other contexts are preserved, old config is backed up). Needs `yq` and an SSH key authorized for `firebolt`.
