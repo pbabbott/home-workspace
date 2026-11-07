@@ -22,6 +22,7 @@
       "tflint": "none",
       "terragrunt": "none"
     },
+    "ghcr.io/devcontainers-extra/features/packer-asdf:2": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/flexwie/devcontainer-features/op:1": {},
     "ghcr.io/rio/features/skaffold:2.0.0": {},

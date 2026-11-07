@@ -15,6 +15,11 @@
       "resolved": "ghcr.io/devcontainers-extra/features/kubectx-kubens@sha256:889b14870298ba1b711f807077f14709fa6c9817f8cd9071691e1e4c86ac856e",
       "integrity": "sha256:889b14870298ba1b711f807077f14709fa6c9817f8cd9071691e1e4c86ac856e"
     },
+    "ghcr.io/devcontainers-extra/features/packer-asdf:2": {
+      "version": "2.0.16",
+      "resolved": "ghcr.io/devcontainers-extra/features/packer-asdf@sha256:897f4ce5a107658b89b3e6111b3ca6f1aa9c22bfb660d31918e618b2b098ada5",
+      "integrity": "sha256:897f4ce5a107658b89b3e6111b3ca6f1aa9c22bfb660d31918e618b2b098ada5"
+    },
     "ghcr.io/devcontainers-extra/features/starship:1": {
       "version": "1.0.10",
       "resolved": "ghcr.io/devcontainers-extra/features/starship@sha256:3184b569f58b9106a27fff1e76566f2ac7a03835c3bc01b0853566b8503b2b54",
