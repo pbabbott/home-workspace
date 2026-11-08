@@ -36,9 +36,9 @@ Two external-dns instances (chart 1.15.0, ns `external-dns`, HelmReleases in `fl
 - cert-manager issues listener certs via DNS01 on Cloudflare (`infra/base/cert-manager/`); `cloudflare-ddns` (prod only) keeps the apex A current.
 - **Non-prod is LAN-only** since 2026-05-16 (Cloudflare Universal SSL doesn't cover two-level subdomains): no Cloudflare external-dns, public Gateway or DDNS there. `docs/ai-reference-httproute-dns.md` / `ai-reference-external-dns-pihole.md` still describe a non-prod Cloudflare instance - stale.
 
-## Gen3 (planned - verify before asserting)
-- State per repo: `home-playbooks/playbooks/kubernetes-gen3/` is "written, not yet run"; k3s VMs `tf-prod-k3s-*` (210-212) on hogwarts, `192.168.6.41-43`. `home-kubernetes` has **no** gen3 manifests (`clusters/prod-gen3` doesn't exist).
-- Intended DNS: node `00-dns.yml` same as gen2; k3s overwrites the `coredns` ConfigMap so a `coredns-custom` ConfigMap (`files/coredns-custom.yaml`) forwards only `local.abbottland.io` to Pi-hole and `nas.local...` to `192.168.4.124` (gen2 forwards everything to Pi-hole); HAProxy still needs gen3 backends (workers .42/.43, NodePorts 30080/30443).
+## Gen3 (live, minimal - verify before asserting)
+- State per repo: k3s is up (3 controllers `.41/.44/.45`, 3 workers `.42/.43/.46`; hogwarts + chimaera) with Flux Operator syncing `home-kubernetes/clusters/prod-gen3` (only podinfo, no Gateway/external-dns/cert-manager yet). Gen3 ingress is its own HAProxy LXC `192.168.6.29` (LXC 213 on hogwarts, `home-playbooks/terraform/hogwarts/haproxy.cfg`); the gen3 Gateway annotation target will be `.29`, not `.28`. Migration plan: `home-kubernetes/docs/plans/2026-11-08-gen2-to-gen3-migration.md`.
+- Intended DNS: node `00-dns.yml` same as gen2; k3s overwrites the `coredns` ConfigMap so a `coredns-custom` ConfigMap (`files/coredns-custom.yaml`) forwards only `local.abbottland.io` to Pi-hole and `nas.local...` to `192.168.4.124` (gen2 forwards everything to Pi-hole); HAProxy `.29` already has gen3 backends (workers .42/.43, NodePorts 30080/30443; backends DOWN until Istio ingress is deployed).
 - Do not assume gen2 recipes apply. Check the repo, then live: `scripts/get-kubeconfig.sh prod-gen3` merges the kubeconfig (context `prod-gen3`; `kubectx prod-gen3`). If the context/cluster is unreachable, say so.
 
 ## Recipes (draft edits; user commits per repo)
