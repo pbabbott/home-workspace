@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "flux-prod": {
+      "type": "http",
+      "url": "https://flux-mcp.local.abbottland.io/mcp"
+    }
+  }
+}
