@@ -20,7 +20,7 @@ Hosts, VMs and k8s nodes in the homelab are configured by Ansible in `home-playb
 - `home-playbooks/docs/HOSTS.md` – which host does what. Hosts have Harry Potter names; look here when one comes up:
   `chimaera` (Proxmox, runs prod gen2 k8s), `hogwarts` (new primary Proxmox, gen3), `room_of_requirement` (Asustor NAS: Redis, Postgres, NFS, media),
   `bananapi` (Pi-hole DNS, Tailscale), `dumbledore` (Raspberry Pi 4, ARM/quorum node, offline), `elder_wand` (Windows gaming PC),
-  `marauders_map` (dev VM), `home_assistant` (192.168.4.37:8123, not Ansible-managed; proxied publicly via k8s `home-assistant` ns), `eero` (router), `tf-*-k8s-*` (k8s VMs), HAProxy LXC (ingress)
+  `marauders_map` (dev VM), `home_assistant` (192.168.4.37:8123, not Ansible-managed; proxied publicly via k8s `home-assistant` ns), `eero` (router), `tf-*-k8s-*` (k8s VMs), HAProxy LXCs (ingress: `.29` gen3 = public + LAN since 2026-11-09, `.28` gen2 = LAN only, retiring)
 - `home-playbooks/playbooks/README.md` – index of playbooks and their status. Dirs: `kubernetes-gen2/` (k8s bootstrap + Flux), `dns/` (Pi-hole),
   `tailscale/` (remote access), `redis/` (NAS), `prometheus/` (host exporters), `workstation/` (dev VM), `ansible-template-ubuntu-noble/` (VM template),
   `proxmox-chimaera/` (disk tuning); unfinished/legacy: `shutdown/`, `host_updates/`, `pironman/`, `ping/`
