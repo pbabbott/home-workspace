@@ -23,7 +23,7 @@ Hosts, VMs and k8s nodes in the homelab are configured by Ansible in `home-playb
   `marauders_map` (dev VM), `home_assistant` (192.168.4.37:8123, not Ansible-managed; proxied publicly via k8s `home-assistant` ns), `eero` (router), `tf-*-k3s-*` (gen3 k3s VMs), HAProxy LXCs (ingress: `.29` gen3 = public + LAN since 2026-11-09; `.28` gen2 stopped 2026-11-09, awaiting removal)
 - `home-playbooks/playbooks/README.md` – index of playbooks and their status. Dirs: `kubernetes-gen3/` (k3s + Flux), `kubernetes-gen2/` (retired), `dns/` (Pi-hole),
   `tailscale/` (remote access), `redis/` (NAS), `prometheus/` (host exporters), `workstation/` (dev VM), `ansible-template-ubuntu-noble/` (VM template),
-  `proxmox-chimaera/` (obsolete except the SSD power rule); unfinished/legacy: `shutdown/`, `host_updates/`, `pironman/`, `ping/`
+  `proxmox-chimaera/` (obsolete except the SSD power rule); `hogwarts-shutdown/` (clean power-off + restart of hogwarts and the gen3 cluster); unfinished/legacy: `host_updates/`, `pironman/`, `ping/`
 
 Read these before answering ansible or host/VM questions, then the relevant playbook README.
 Also see `home-playbooks/CLAUDE.md` (e.g. vault flag `-e @./vault.yml`).
