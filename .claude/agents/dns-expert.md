@@ -31,17 +31,17 @@ Split is by the `local.` prefix (not true split-horizon on the same names):
 ## Gen3 (the live cluster; gen2 retired 2026-11-09)
 k3s on hogwarts + chimaera (3 controllers `.41/.44/.45`, 3 workers `.42/.43/.46`), Flux Operator syncing `home-kubernetes/clusters/prod-gen3`. Gen2 (`prod-gen2`, VMs `.24-.27`) is powered off with Flux suspended, kept as a rollback until about 2026-12-07; non-prod-gen2 is off too. Migration record: `home-kubernetes/docs/plans/2026-11-08-gen2-to-gen3-migration.md`.
 
-Two external-dns instances (chart 1.15.0, ns `external-dns`, HelmReleases in `flux-system`), base in `home-kubernetes/infra/base/external-dns/`, per-cluster patches in `infra/prod-gen3/external-dns/kustomization.yaml`. Both run `policy: sync`:
+Two external-dns instances (chart 1.15.0, ns `external-dns`, HelmReleases in `flux-system`), base in `home-kubernetes/infra/base/networking/external-dns/`, per-cluster patches in `infra/prod-gen3/networking/external-dns/kustomization.yaml`. Both run `policy: sync`:
 - **cloudflare** (`external-dns`): label `external-dns-enabled=true`, `gateway-httproute` source, `registry: txt` (`_extdns.`, owner id `prod-gen2`, inherited from gen2), CNAME+TXT only, `--cloudflare-proxied`, domain `abbottland.io`. It only deletes records it owns (those with an ownership TXT): the apex A (DDNS), `plex` CNAME and `_acme-challenge` TXT are untouched.
 - **pihole** (`external-dns-pihole`): label `pihole-dns-enabled=true`, sources `gateway-httproute` + `crd` (DNSEndpoint), **`registry: noop` is mandatory** (Pi-hole v5 has no TXT), A only.
 - Two Gateways in `istio-system` (`infra/base/istio/`): `istio-ingress` (annotation target `192.168.6.29`; listeners `http`, `https` = `*.local.*`) and `istio-ingress-public` (target `abbottland.io`; `https-public` = `*.abbottland.io`, `https-public-apex`). **external-dns takes the target from the Gateway annotation; the HTTPRoute `target` annotation is ignored** (many base routes still carry a stale `192.168.6.28` annotation; cosmetic).
 - cert-manager (1.20.5 on gen3) issues listener certs via DNS01 on Cloudflare; `cloudflare-ddns` keeps the apex A current.
 - k3s overwrites the `coredns` ConfigMap, so a `coredns-custom` ConfigMap forwards `local.abbottland.io` to Pi-hole and `nas.local...` to `192.168.4.124`. Node `00-dns.yml` adds the systemd-resolved drop-in.
 - Get a kubeconfig with `scripts/get-kubeconfig.sh prod-gen3` (context `prod-gen3`). If it is unreachable, say so.
-- Non-prod is LAN-only and powered off. `docs/ai-reference-httproute-dns.md` / `ai-reference-external-dns-pihole.md` still describe a non-prod Cloudflare instance and gen2 `upsert-only`: stale.
+- Non-prod is LAN-only and powered off. `docs/ai-reference/httproute-dns.md` / `docs/ai-reference/external-dns-pihole.md` still describe a non-prod Cloudflare instance and gen2 `upsert-only`: stale.
 
 ## Recipes (draft edits; user commits per repo)
-Template apps: `home-kubernetes/applications/base/podinfo/` (internal + public), `umami/`, `home-assistant/`, `blog/`. File naming `<name>-<kind>.yaml`.
+Template apps: `home-kubernetes/apps/base/platform/podinfo/` (internal + public), `public-sites/umami/`, `host-proxies/home-assistant/`, `public-sites/blog/` (all under `apps/base/`). File naming `<name>-<kind>.yaml`.
 
 **Internal (LAN) entry** - HTTPRoute:
 ```yaml
@@ -51,7 +51,7 @@ spec:
   parentRefs: [{ name: istio-ingress, namespace: istio-system, sectionName: https }]
   hostnames: ["<app>.local.abbottland.io"]   # non-prod: <app>.local.non-prod.abbottland.io
 ```
-Steps: base `applications/base/<app>/<app>-httproute.yaml` (placeholder host) → per-cluster overlay kustomization patching `/spec/hostnames/0` → add `./<app>` to `applications/<cluster>/kustomization.yaml` → validate `kubectl kustomize applications/<cluster>/<app>` → optional http→https redirect route (parent `sectionName: http`, `RequestRedirect` 301, no label; see `infra/base/pihole/httproute-http-to-https.yaml`). Pi-hole record appears in ~1 min.
+Steps: base `apps/base/<category>/<app>/<app>-httproute.yaml` (placeholder host; `<category>` is an existing dir under `apps/base/`) → per-cluster overlay kustomization patching `/spec/hostnames/0` → add `./<category>/<app>` to `apps/<cluster>/kustomization.yaml` → validate `kubectl kustomize apps/<cluster>/<category>/<app>` → optional http→https redirect route (parent `sectionName: http`, `RequestRedirect` 301, no label; see `infra/base/networking/pihole/httproute-http-to-https.yaml`). Pi-hole record appears in ~1 min.
 
 **Public entry (prod only)** - separate HTTPRoute:
 ```yaml
@@ -66,7 +66,7 @@ spec:
 ```
 Apex uses `sectionName: https-public-apex` (see `blog-httproute.yaml`; apex A comes from DDNS). Repo rules for public apps: a NetworkPolicy (ingress from `istio-system` only, egress deny-by-default; `blog-netpol.yaml`, `umami-netpol.yaml`) and image-update automation. Need both internal and public → two HTTPRoutes, one per Gateway.
 
-**Non-HTTP / bare host** - `DNSEndpoint` with label `pihole-dns-enabled: "true"` (`applications/prod-gen3/asustor/nas-dnsendpoint.yaml`; CRD in `crds/base/external-dns/`).
+**Non-HTTP / bare host** - `DNSEndpoint` with label `pihole-dns-enabled: "true"` (`apps/prod-gen3/host-proxies/asustor/nas-dnsendpoint.yaml`; CRD in `crds/base/external-dns/`).
 
 **Static physical host** - add `<ip> <name>.local.abbottland.io` to `home-playbooks/playbooks/dns/files/pihole/custom.list`. **Warn first:** `pihole.yml` overwrites `custom.list` and restarts Pi-hole, which may wipe records external-dns wrote there; `playbooks/dns/README.md` says not to run it on bananapi until that's confirmed. Draft the edit, give the user the run command (`cd home-playbooks && ansible-playbook -e @./vault.yml playbooks/dns/pihole.yml`), never run it. Known list issues: stale `elderwand` IP (elder_wand is `192.168.5.142`), `hogwarts`/`marauders_map` missing, `nas` duplicated by DNSEndpoint.
 
@@ -105,7 +105,7 @@ Pi-hole API (v5, `http://192.168.4.144:8081/admin/api.php?customdns&action=get&a
 `bananapi` 192.168.4.144 (Pi-hole, Tailscale; `ssh pi@`), HAProxy LXC 192.168.6.29 (`root@`; old `.28` stopped), `chimaera` 192.168.4.192 / `hogwarts` 192.168.4.196 (Proxmox, `root@`), `room_of_requirement` NAS 192.168.4.124, `marauders_map` 192.168.5.91 (`firebolt@`), gen2 prod nodes 192.168.6.24-27 and non-prod 31-34 (both powered off), gen3 192.168.6.41-46 (`firebolt@`). Full list: `home-playbooks/docs/HOSTS.md`. Ansible runs from `home-playbooks/` with `-e @./vault.yml`.
 
 ## Read first (then verify against manifests)
-- `home-kubernetes/docs/ai-reference-{httproute-dns,external-dns-pihole,pihole-api,infra}.md`, `home-kubernetes/CLAUDE.md`
+- `home-kubernetes/docs/ai-reference/{httproute-dns,external-dns-pihole,pihole-api,infra}.md`, `home-kubernetes/CLAUDE.md`
 - `home-playbooks/docs/HOSTS.md`, `docs/NETWORK.md`, `playbooks/dns/README.md`, `playbooks/tailscale/README.md`, `playbooks/kubernetes-gen3/README.md`
 
 ## Known gaps (say "unverified", offer to check live)
