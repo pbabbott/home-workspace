@@ -41,7 +41,7 @@ Layout: `clusters/prod-gen3/` (Flux entry points), `crds/`, `infra/` and `apps/`
   cert-manager, longhorn (app data) + `nas-storage` (NFS on `room_of_requirement`), 1Password operator (secrets), kube-prometheus-stack (Grafana)
 - Agents (in `home-kubernetes/.claude/agents/`): `flux-recover`, `istio-debug`, `longhorn-ops`, `secrets-ops`, `arc-debug`, `media-debug`; add an app with the `flux-app-add` skill
 - Docs to start from: `home-kubernetes/docs/ai-reference/` (`secrets.md` for anything secret, `gen3-manual-steps.md` for node changes, `httproute-dns.md` for exposing an app)
-- Cluster access: `scripts/get-kubeconfig.sh` below, then plain `kubectl`/`flux` (no ssh). Don't unsuspend `ImageUpdateAutomation` (suspended on purpose).
+- Cluster access: `scripts/get-kubeconfig.sh` below, then plain `kubectl`/`flux` (no ssh). `ImageUpdateAutomation` is running (resumed 2026-11-11, #39); don't hand-edit image tags it manages (see `home-kubernetes/CLAUDE.md`).
 
 ## Web apps (`home-web-apps/`)
 TypeScript monorepo (pnpm workspaces + Turborepo): the apps that `home-kubernetes` deploys, built into images pushed to Harbor.
