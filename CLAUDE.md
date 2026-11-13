@@ -35,7 +35,7 @@ Flux GitOps for the live `prod-gen3` k3s cluster (nodes are built by `home-playb
 Layout: `clusters/prod-gen3/` (Flux entry points), `crds/`, `infra/` and `apps/` (each `base/` + `prod-gen3/` overlay, `<category>/<name>`), `docs/`.
 
 - Apps by name: `ci-registry/` (arc CI runners, harbor, harbor-cleanup: irreversible tag deletion, read `home-kubernetes/docs/ai-reference/harbor-cleanup.md` before touching it), `public-sites/` (blog, home-hud, umami, fui-components, diagram-maker),
-  `media/` (sonarr, radarr, prowlarr, qbittorrent, plex), `host-proxies/` (routes in front of `asustor`, `haproxy`, `home-assistant`, `proxmox`),
+  `media/` (sonarr, radarr, prowlarr, qbittorrent, plex), `host-proxies/` (routes in front of `asustor`, `haproxy`, `home-assistant`),
   `dev-ai/` (coder, openclaw, mcp-grafana), `platform/` (dashy, flux-gitops, podinfo)
 - Infra: istio (ingress; Gateways `istio-ingress` = `*.local.abbottland.io`, `istio-ingress-public` = `*.abbottland.io`), external-dns (Cloudflare public, Pi-hole internal; never hand-create records),
   cert-manager, longhorn (app data) + `nas-storage` (NFS on `room_of_requirement`), 1Password operator (secrets), kube-prometheus-stack (Grafana)
