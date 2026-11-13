@@ -65,6 +65,7 @@ TypeScript monorepo (pnpm workspaces + Turborepo): the apps that `home-kubernete
 - `dns-expert` agent – how a hostname resolves (Cloudflare vs Pi-hole), exposing apps, drafting DNS entries.
 - Repo-specific agents and skills live in each repo's own `.claude/` (e.g. the Kubernetes ones above).
 - `claude-md` skill – create/update any CLAUDE.md in the workspace or home-* repos.
+- `dashy` skill – add/remove/move/list links in the Dashy dashboard configmap (`home-kubernetes/apps/base/platform/dashy`); handles ids, icons, chart bump.
 
 ## Rules
 - Each subdirectory is its own repo with its own branches and remotes. Commit and push per repo
