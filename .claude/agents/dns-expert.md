@@ -21,7 +21,9 @@ Split is by the `local.` prefix (not true split-horizon on the same names):
 |---|---|---|---|
 | `*.abbottland.io`, apex | Cloudflare (external-dns) | proxied CNAME → `abbottland.io`; apex A kept by `cloudflare-ddns` | internet |
 | `*.local.abbottland.io` (prod), `*.local.non-prod.abbottland.io` | Pi-hole via external-dns | A → `192.168.6.29` (gen3 HAProxy LXC); `nas` → `192.168.4.124` | LAN / Tailscale |
-| physical hosts (`nas`, `bananapi`, `chimaera`, ...) under `local.abbottland.io` | Pi-hole static | `home-playbooks/playbooks/dns/files/pihole/custom.list` | LAN |
+| physical hosts under `local.abbottland.io` (`nas`, `pve-hogwarts`, `pve-chimaera`) | Pi-hole via external-dns **`DNSEndpoint`** | A → host IP, direct (no Istio): `apps/prod-gen3/host-proxies/{asustor,proxmox}/*-dnsendpoint.yaml` | LAN |
+
+**There are no static Pi-hole records.** `custom.list` in `home-playbooks` is dead config: external-dns-pihole (`sync` + `noop`) deletes anything it does not own, so only `DNSEndpoint`/labelled-HTTPRoute records persist (verified 2026-11-13, issue pbabbott/home-playbooks#35). `bananapi`, `elderwand`, `dumbledore`, `chimaera` have no live names today; add them as DNSEndpoints if wanted.
 
 - Public path: Cloudflare → home IP (DDNS) → eero port-forward 80/443 → HAProxy LXC `192.168.6.29` (LXC 213 on hogwarts, `home-playbooks/terraform/hogwarts/haproxy.cfg`, source ACL = LAN + Cloudflare ranges) → Istio NodePort 30080/30443. The old gen2 HAProxy `.28` (LXC 208 on chimaera) was stopped 2026-11-09 and is awaiting removal from Terraform. No cloudflared / tunnels / k8s-gateway.
 - Pi-hole v5 (docker `pihole/pihole:2024.05.0`) on `bananapi` `192.168.4.144`, web/API on `:8081`, managed by `home-playbooks/playbooks/dns/pihole.yml`. In-cluster alias: `pihole.pihole.svc.cluster.local:8081` (selector-less Service + EndpointSlice, `home-kubernetes/infra/base/pihole/`).
@@ -68,7 +70,15 @@ Apex uses `sectionName: https-public-apex` (see `blog-httproute.yaml`; apex A co
 
 **Non-HTTP / bare host** - `DNSEndpoint` with label `pihole-dns-enabled: "true"` (`apps/prod-gen3/host-proxies/asustor/nas-dnsendpoint.yaml`; CRD in `crds/base/external-dns/`).
 
-**Static physical host** - add `<ip> <name>.local.abbottland.io` to `home-playbooks/playbooks/dns/files/pihole/custom.list`. **Warn first:** `pihole.yml` overwrites `custom.list` and restarts Pi-hole, which may wipe records external-dns wrote there; `playbooks/dns/README.md` says not to run it on bananapi until that's confirmed. Draft the edit, give the user the run command (`cd home-playbooks && ansible-playbook -e @./vault.yml playbooks/dns/pihole.yml`), never run it. Known list issues: stale `elderwand` IP (elder_wand is `192.168.5.142`), `hogwarts`/`marauders_map` missing, `nas` duplicated by DNSEndpoint.
+**Physical host / bare IP (Proxmox, NAS, Pi, ...)** - a `DNSEndpoint` in the `home-kubernetes` prod overlay, never `custom.list`:
+```yaml
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata: { name: pve-hogwarts, namespace: proxmox, labels: { pihole-dns-enabled: "true" } }
+spec:
+  endpoints: [{ dnsName: pve-hogwarts.local.abbottland.io, recordType: A, targets: [192.168.4.196] }]
+```
+Examples: `apps/prod-gen3/host-proxies/asustor/nas-dnsendpoint.yaml`, `apps/prod-gen3/host-proxies/proxmox/pve-dnsendpoint.yaml` (CRD in `crds/base/external-dns/`; needs a namespace and an entry in `apps/prod-gen3/kustomization.yaml`). Pick **one-label names** under `local.abbottland.io` (the wildcard cert only covers one label; `a.b.local...` routes but breaks TLS) and avoid bare host names others may want for SSH (`pve-<host>` for Proxmox UIs). Direct A records keep working when the cluster is down, unlike an HTTPRoute proxy (hogwarts hosts the ingress), but a direct link to a self-signed UI such as Proxmox `:8006` gives a browser cert warning. Do **not** draft `custom.list` edits, and never suggest running `pihole.yml`: it replaces `custom.list` wholesale, so every external-dns record disappears until `deploy/external-dns-pihole` resyncs (restart it to speed that up), and static lines are then swept anyway.
 
 ## Diagnostics (read-only)
 From any LAN/Tailscale client (e.g. this devcontainer, marauders_map):
@@ -96,7 +106,7 @@ Pi-hole API (v5, `http://192.168.4.144:8081/admin/api.php?customdns&action=get&a
 ## Gotchas
 - **ndots:5 trap**: with the old wildcard `*.local.abbottland.io → HAProxy` (removed; per-service records now, unknown names are NXDOMAIN), pods calling external FQDNs could resolve `api.github.com.local.abbottland.io` to HAProxy. Fix per pod: `dnsConfig: {options: [{name: ndots, value: "1"}]}` ("2" for ARC runners).
 - Cloudflare rejects private IPs when proxied (error 9003); `--managed-record-types=CNAME` must be in `extraArgs`, not chart values.
-- Pi-hole `registry: noop` + `policy: sync` (live since 2026-11-09) deletes ANY record in `local.abbottland.io` without a labelled route or DNSEndpoint - never hand-add records there via the UI/API; add a `DNSEndpoint` instead.
+- Pi-hole `registry: noop` + `policy: sync` (live since 2026-11-09) deletes ANY record in `local.abbottland.io` without a labelled route or DNSEndpoint - never hand-add records there via the UI/API or `custom.list`; add a `DNSEndpoint` instead. Confirmed live 2026-11-13: after `pihole.yml` + an external-dns restart, all static entries vanished and only external-dns-owned records (incl. `nas`) remained (pbabbott/home-playbooks#35).
 - Apex `abbottland.io`: external-dns (CNAME/TXT) and `cloudflare-ddns` (A) can overlap - check before changing either.
 - `home-kubernetes/.claude/agents/dns-debug.md` is partly stale (`https-private` listener should be `https`; says routes need a `hostname` annotation but labels are what matter; non-prod LB `192.168.6.38`). Prefer this agent's facts; suggest the user refresh it.
 - Node/containerd resolve via the node resolver, not CoreDNS - fix node `resolved` config for image-pull DNS issues.
@@ -109,4 +119,4 @@ Pi-hole API (v5, `http://192.168.4.144:8081/admin/api.php?customdns&action=get&a
 - `home-playbooks/docs/HOSTS.md`, `docs/NETWORK.md`, `playbooks/dns/README.md`, `playbooks/tailscale/README.md`, `playbooks/kubernetes-gen3/README.md`
 
 ## Known gaps (say "unverified", offer to check live)
-Pi-hole upstream resolvers and adlists (live in the container volume, not the repo); eero DNS settings; Tailscale split-DNS/MagicDNS; whether `pihole.yml` wipes external-dns records; `02-internal.conf` `listen-address=127.0.0.1` behaviour; vault key name for the Pi-hole password.
+Pi-hole upstream resolvers and adlists (live in the container volume, not the repo); eero DNS settings; Tailscale split-DNS/MagicDNS; `02-internal.conf` `listen-address=127.0.0.1` behaviour; vault key name for the Pi-hole password.
