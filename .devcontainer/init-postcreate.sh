@@ -19,6 +19,9 @@ for _pair in "${_plugins[@]}"; do
 done
 unset _pair _url _dest _plugins
 
+# Local MEDIA_ROOT for video-worker (home-web-apps/apps/video-worker/sample.env). Same path as the optional ~/media bind mount (see TOGGLES.md).
+mkdir -p "$HOME/media/media/tv_shows"
+
 echo "Setting up docker buildx"
 if ! docker buildx inspect mybuilder > /dev/null 2>&1; then
   docker buildx create --use --name mybuilder --driver docker-container

@@ -11,7 +11,7 @@ Update this file whenever something is toggled on or off.
 | --- | --- | --- | --- |
 | `~/.gitconfig` → `/home/vscode/.gitconfig` (read-only) | OFF | `~/.gitconfig` must exist | `init-poststart.sh` falls back to writing a container-local global config |
 | `~/.claude` → `/home/vscode/.claude` | ON | `~/.claude` must exist | Claude Code auth/settings |
-| `~/media` → `/home/vscode/media` | OFF | `~/media` must exist | Container fails to start if missing |
+| `~/media` → `/home/vscode/media` | OFF | `~/media` must exist | Container fails to start if missing. When OFF, `init-postcreate.sh` creates an empty `/home/vscode/media/media/tv_shows` so video-worker's `MEDIA_ROOT` still exists |
 | `~/.ssh` → `/home/vscode/.ssh` | ON | `~/.ssh` must exist | Container fails to start if missing. Mounted read-write (needed for ansible `known_hosts`) |
 
 ## Host files / env
