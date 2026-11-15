@@ -45,7 +45,7 @@ Layout: `clusters/prod-gen3/` (Flux entry points), `crds/`, `infra/` and `apps/`
 
 ## Web apps (`home-web-apps/`)
 TypeScript monorepo (pnpm workspaces + Turborepo): the apps that `home-kubernetes` deploys, built into images pushed to Harbor.
-**Read `home-web-apps/CLAUDE.md` before changing anything: it holds the app/package index, dev guides (`docs/dev-guide-*.md`, `docs/test-guide-*.md`) and restrictions.**
+**Read `home-web-apps/CLAUDE.md` before changing anything: it holds the app/package index, dev guides (`docs/dev-guide-*.md`, `docs/test-guide-*.md`).**
 
 - `apps/` by name: `blog`, `diagram-maker`, `home-hud` (Next.js frontends, public via `public-sites/` in k8s); `gluetun-sync` (qBittorrent port sync for the `media` VPN),
   `pi-led-api`, `video-api` + `video-worker`, `homelab-api` (Exodus Windows-to-NAS migration, Postgres on `room_of_requirement`), `backup-worker`, `harbor-cleanup`
@@ -53,7 +53,7 @@ TypeScript monorepo (pnpm workspaces + Turborepo): the apps that `home-kubernete
   `source-access` (SMB driver), configs (`eslint-config`, `jest-presets`, `typescript-config`), `abctl` (CLI for Docker builds/secrets), base images `node-22-alpine`/`node-22-dev`
 - CI: `.github/workflows/ci.yml` runs on PRs to `main` on self-hosted `prod-gen3-amd64-runner` pods (the `arc` workload in k8s): lint, format, build, docker-build (`sha-<sha7>` images), unit/integration/smoke/UI tests, Trivy scan, then `deploy-blog-preview`.
   `docker-publish.yml` retags to a production tag on push to `main`; `pr-teardown.yml` removes the preview namespace. Conventions (one 1Password secret, logic in `scripts/` not YAML): `home-web-apps/.github/CLAUDE.md`.
-- Never run Playwright snapshot (UI screenshot) tests locally. Setup: `scripts/setup-web-apps.sh`; run pnpm/turbo from inside `home-web-apps/`.
+- Setup: `scripts/setup-web-apps.sh`; run pnpm/turbo from inside `home-web-apps/`.
 - New image to deploy: the app lives here, the manifests in `home-kubernetes/apps/` (`flux-app-add` skill).
 
 ## Scripts
